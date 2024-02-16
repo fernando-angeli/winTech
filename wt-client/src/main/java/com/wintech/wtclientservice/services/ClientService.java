@@ -34,7 +34,7 @@ public class ClientService {
         Address address = convertToEntity(addressService.insert(clientDto.getAddress()), Address.class);
         Client client = convertToEntity(clientDto, Client.class);
         client.setAddress(address);
-        if(verifyIsEmpty(String.valueOf(clientDto.getDeliveryAddress()))){
+        if(!verifyIsEmpty(String.valueOf(clientDto.getDeliveryAddress()))){
             Address addressDelivery = convertToEntity(addressService.insert(clientDto.getDeliveryAddress()), Address.class);
             client.setDeliveryAddress(addressDelivery);
         } else{
@@ -67,13 +67,11 @@ public class ClientService {
         * No caso de incluir um endereço novo de entrega, cadastra o mesmo, se não manter a mesma referencia do
         * endereço principal
         * */
-        if(verifyIsEmpty(String.valueOf(clientUpdateDto.getAddress()))) {
-            Address updatedAddress = convertToEntity(addressService.update(client.getAddress().getId(), clientUpdateDto.getAddress()), Address.class);
-            client.setAddress(updatedAddress);
-            if(!verifyIsEmpty(String.valueOf(clientUpdateDto.getDeliveryAddress())))
-                client.setDeliveryAddress(updatedAddress);
-        }
+        Address updatedAddress = convertToEntity(addressService.update(client.getAddress().getId(), clientUpdateDto.getAddress()), Address.class);
+        client.setAddress(updatedAddress);
         if (verifyIsEmpty(String.valueOf(clientUpdateDto.getDeliveryAddress()))) {
+            client.setDeliveryAddress(updatedAddress);
+        } else {
             Address updatedDeliveryAddress = convertToEntity(addressService.update(client.getDeliveryAddress().getId(), clientUpdateDto.getAddress()), Address.class);
             client.setAddress(updatedDeliveryAddress);
         }
@@ -101,7 +99,7 @@ public class ClientService {
     }
 
     private boolean verifyIsEmpty(String jsonString){
-        return jsonString.isEmpty();
+        return !jsonString.isEmpty();
     }
 
 }
