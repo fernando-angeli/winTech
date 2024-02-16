@@ -3,7 +3,6 @@ package com.wintech.wtclientservice.controllers;
 import com.wintech.wtclientservice.dtos.ClientDto;
 import com.wintech.wtclientservice.dtos.ClientUpdateDto;
 import com.wintech.wtclientservice.services.ClientService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
 
@@ -22,7 +22,7 @@ public class ClientController {
     private ClientService service;
 
     @PostMapping
-    public ResponseEntity<ClientDto> insert(@RequestBody ClientDto clientDto){
+    public ResponseEntity<ClientDto> insert(@Valid @RequestBody ClientDto clientDto){
         ClientDto newClient = service.insert(clientDto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()

@@ -3,6 +3,8 @@ package com.wintech.wtclientservice.domains;
 import com.wintech.wtclientservice.domains.enums.TypeCompanyOrPerson;
 import com.wintech.wtclientservice.domains.enums.TypeRegister;
 import jakarta.persistence.*;
+
+import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.util.HashSet;
