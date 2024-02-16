@@ -2,6 +2,7 @@ package com.wintech.wtclientservice.services;
 
 import com.wintech.wtclientservice.domains.Address;
 import com.wintech.wtclientservice.domains.Client;
+import com.wintech.wtclientservice.dtos.AddressDto;
 import com.wintech.wtclientservice.dtos.ClientDto;
 import com.wintech.wtclientservice.dtos.ClientUpdateDto;
 import com.wintech.wtclientservice.repositories.ClientRepository;
@@ -13,8 +14,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.wintech.wtclientservice.mapper.EntityMapper.convertToDto;
@@ -34,13 +37,11 @@ public class ClientService {
         Address address = convertToEntity(addressService.insert(clientDto.getAddress()), Address.class);
         Client client = convertToEntity(clientDto, Client.class);
         client.setAddress(address);
-        if(!verifyIsEmpty(String.valueOf(clientDto.getDeliveryAddress()))){
+        if(clientDto.getDeliveryAddress() != null){
             Address addressDelivery = convertToEntity(addressService.insert(clientDto.getDeliveryAddress()), Address.class);
             client.setDeliveryAddress(addressDelivery);
-        } else{
-            client.setDeliveryAddress(address);
         }
-        repository.save(client);
+        client = repository.save(client);
         return convertToDto(client, ClientDto.class);
     }
 
@@ -61,21 +62,20 @@ public class ClientService {
     public ClientDto update(Long id, ClientUpdateDto clientUpdateDto) {
         verifyExistsId(id);
         Client client = repository.getReferenceById(id);
-        /*
-        * AJUSTAR A REGRA PARA PEGAR O id atual do endereço do cliente e puxar do serviço de endereço
-        * com o getReferenceById do endereço atual
-        * No caso de incluir um endereço novo de entrega, cadastra o mesmo, se não manter a mesma referencia do
-        * endereço principal
-        * */
-        Address updatedAddress = convertToEntity(addressService.update(client.getAddress().getId(), clientUpdateDto.getAddress()), Address.class);
-        client.setAddress(updatedAddress);
-        if (verifyIsEmpty(String.valueOf(clientUpdateDto.getDeliveryAddress()))) {
-            client.setDeliveryAddress(updatedAddress);
-        } else {
-            Address updatedDeliveryAddress = convertToEntity(addressService.update(client.getDeliveryAddress().getId(), clientUpdateDto.getAddress()), Address.class);
-            client.setAddress(updatedDeliveryAddress);
-        }
         client.getType().clear();
+        AddressDto updatedAddress = addressService.update(client.getAddress().getId(), clientUpdateDto.getAddress());
+        client.setAddress(convertToEntity(updatedAddress, Address.class));
+        if (clientUpdateDto.getDeliveryAddress() != null) {
+            if(client.getDeliveryAddress() == null){
+                AddressDto newDeliveryAddress = convertToDto(clientUpdateDto.getDeliveryAddress(), AddressDto.class);
+                client.setDeliveryAddress(convertToEntity(addressService.insert(newDeliveryAddress), Address.class));
+            }else{
+                AddressDto updateDeliveryAddress = addressService.update(client.getDeliveryAddress().getId(), clientUpdateDto.getDeliveryAddress());
+                client.setDeliveryAddress(convertToEntity(updateDeliveryAddress, Address.class));
+            }
+        } else {
+            client.setDeliveryAddress(null);
+        }
         convertToEntity(clientUpdateDto, client);
         client = repository.save(client);
         return convertToDto(client, ClientDto.class);
@@ -96,10 +96,6 @@ public class ClientService {
         if(!repository.existsById(id)){
             throw new ResourceNotFoundException("Id [" + id + "] não localizado.");
         }
-    }
-
-    private boolean verifyIsEmpty(String jsonString){
-        return !jsonString.isEmpty();
     }
 
 }

@@ -9,6 +9,7 @@ import com.wintech.wtclientservice.repositories.AddressRepository;
 import com.wintech.wtclientservice.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import static com.wintech.wtclientservice.mapper.EntityMapper.convertToDto;
@@ -29,6 +30,7 @@ public class AddressService {
 
     @Transactional
     public AddressDto update(Long id, AddressUpdateDto addressUpdateDto) {
+        verifyExistsId(id);
         Address address = repository.getReferenceById(id);
         convertToEntity(addressUpdateDto, address);
         address = repository.save(address);
