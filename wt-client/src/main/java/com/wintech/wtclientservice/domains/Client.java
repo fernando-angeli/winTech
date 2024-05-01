@@ -32,7 +32,6 @@ public class Client {
     private String telephone1;
     private String telephone2;
     private String email;
-
     private String cpfOrCnpj;
     private String rgOrIe;
 

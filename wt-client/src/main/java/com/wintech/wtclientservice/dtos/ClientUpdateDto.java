@@ -12,24 +12,33 @@ import java.util.List;
 @NoArgsConstructor
 public class ClientUpdateDto {
 
-    @NotEmpty
+    @NotNull(message = "Informe se o cadastro é do tipo PF ou PJ.")
     private TypeCompanyOrPerson companyOrPerson;
-    @NotEmpty
+
+    @NotNull(message = "Informe o tipo de cadastro.")
     private List<TypeRegister> type = new ArrayList<>();
-    @NotEmpty
+
+    @NotBlank(message = "Nome é obrigatório.")
     private String name;
-    @NotEmpty
+
+    @NotBlank(message = "Telefone é obrigatório.")
     private String telephone1;
+
     private String telephone2;
-    @NotEmpty
-    @Email
+
+    @NotBlank(message = "E-mail é obrigatório.")
+    @Email(message = "E-mail inválido.")
     private String email;
-    @NotEmpty
+
+    @NotEmpty(message = "Informe o número do documento.")
     private String cpfOrCnpj;
-    @NotEmpty
+
+    @NotEmpty(message = "Informe o número do documento.")
     private String rgOrIe;
-    @NotEmpty
+
+    @NotNull(message = "Informe um endereço.")
     private AddressUpdateDto address;
+
     private AddressUpdateDto deliveryAddress;
 
 }
