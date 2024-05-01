@@ -1,9 +1,7 @@
 package com.wintech.wtclientservice.controllers.exceptions;
 
-
 import com.wintech.wtclientservice.services.exceptions.DatabaseException;
 import com.wintech.wtclientservice.services.exceptions.ResourceNotFoundException;
-import com.wintech.wtuser.controllers.exceptions.ValidationError;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,15 +42,15 @@ public class ResourceExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ValidationError> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
-        ValidationError err = new ValidationError();
-        err.setTimestamp(Instant.now());
-        err.setStatus(status.value());
-        err.setError("Validation exception");
-        err.setMessage(e.getMessage());
-        err.setPath(request.getRequestURI());
-        for(FieldError f : e.getBindingResult().getFieldErrors()){
-            err.addError(f.getField(), f.getDefaultMessage());
-        }
-        return ResponseEntity.status(status).body(err);
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(status.value());
+        error.setError("Validation exception");
+        error.setMessage(e.getMessage());
+        error.setPath(request.getRequestURI());
+        for(FieldError f : e.getBindingResult().getFieldErrors())
+            error.addError(f.getField(), f.getDefaultMessage());
+        return ResponseEntity.status(status).body(error);
     }
+
 }
